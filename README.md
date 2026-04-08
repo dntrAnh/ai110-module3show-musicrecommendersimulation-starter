@@ -17,17 +17,73 @@ Replace this paragraph with your own summary of what your version does.
 
 ## How The System Works
 
-Explain your design in plain language.
+Real-world recommendation systems usually combine multiple signals, including patterns from similar users and content-level song attributes, then rank results by predicted satisfaction. This simulator uses a simpler content-based scoring method that compares each song to a user profile and ranks by score. I prioritize genre over mood so the model can discover more songs across broader taste neighborhoods and encourage variety in listening patterns, while mood remains a secondary signal instead of the primary gatekeeper.
 
-Some prompts to answer:
+Our recommender follows a simple Input -> Process -> Output flow:
 
-- What features does each `Song` use in your system
-  - For example: genre, mood, energy, tempo
-- What information does your `UserProfile` store
-- How does your `Recommender` compute a score for each song
-- How do you choose which songs to recommend
+- Input: user preferences (`genre`, `mood`, and target `energy`) plus songs loaded from `data/songs.csv`
+- Process: loop through every song, score it with the algorithm recipe below, and store score reasons
+- Output: sort songs by score and return the top `k` recommendations
 
-You can include a simple diagram or bullet list if helpful.
+```mermaid
+flowchart LR
+   A[Input: User Preferences + songs.csv] --> B[Process: Loop Through Each Song]
+   B --> C[Score Song]
+   C --> D[+2.0 Genre Match]
+   C --> E[+1.0 Mood Match]
+   C --> F[Energy Similarity Points]
+   D --> G[Store Score + Reason]
+   E --> G
+   F --> G
+   G --> H{More Songs?}
+   H -->|Yes| B
+   H -->|No| I[Output: Rank by Score]
+   I --> J[Return Top K Recommendations]
+```
+
+Algorithm recipe used for each song:
+
+1. Start score at `0.0`.
+2. Add `2.0` points for a genre match.
+3. Add `1.0` point for a mood match.
+4. Add energy similarity points using:
+
+```text
+energy_score = max(0, 1.5 - 3 * abs(song_energy - target_energy))
+```
+
+This weighting intentionally makes genre the strongest signal, mood the secondary signal, and energy a tie-breaker style similarity boost.
+
+Potential bias note: this setup may over-prioritize genre and miss cross-genre songs that still match a user's mood or energy very well.
+
+Features used by each `Song`:
+
+- `genre`
+- `mood`
+- `energy`
+- `tempo_bpm`
+- `valence`
+- `danceability`
+- `acousticness`
+
+Features stored in `UserProfile`:
+
+- `favorite_genre`
+- `favorite_mood`
+- `target_energy`
+- `likes_acoustic`
+
+Functional user preference fields (used by `recommend_songs`):
+
+- `genre`
+- `mood`
+- `energy`
+- optional targets: `tempo_bpm`, `valence`, `danceability`, `acousticness`
+- optional feature weights with `weight_genre` set higher than `weight_mood`
+
+Recommendation output example:
+
+![Recommendations Example](data/recommendations_example.png)
 
 ---
 
