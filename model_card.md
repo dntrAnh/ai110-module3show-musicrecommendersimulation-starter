@@ -58,4 +58,10 @@ I would add diversity logic so the top 5 are not all near-identical in energy. I
 
 ## 9. Personal Reflection
 
-This project showed me how small weight choices can strongly change user experience. I learned that a recommender can look accurate in math while still feeling repetitive to a human listener. Building and stress-testing this model made me pay more attention to bias, variety, and explanation quality in real music apps.
+My biggest learning moment was seeing how one small scoring change (higher energy weight) reshaped almost every top-5 list. It made me realize that recommendation quality is not just about writing code that runs, but about tuning tradeoffs between relevance and variety.
+
+AI tools helped me move faster by generating adversarial profiles, suggesting experiment ideas, and explaining score behavior in plain language. I still had to double-check outputs by running the code and verifying the math myself, because AI suggestions can sound correct even when they need context-specific validation.
+
+What surprised me most is that even a very simple weighted formula can feel like a "real" recommender once it gives ranked outputs and explanations. At the same time, those rankings can feel repetitive or biased if one feature dominates.
+
+If I extended this project, I would add diversity constraints, soft mood matching, and more user controls (like danceability/acousticness sliders). I would also test with a larger and more balanced dataset to reduce filter bubbles and improve fairness across different listener types.
