@@ -17,20 +17,60 @@ except ImportError:
     from recommender import load_songs, recommend_songs
 
 
+def _truncate(text: str, max_len: int) -> str:
+    if len(text) <= max_len:
+        return text
+    return text[: max_len - 3] + "..."
+
+
+def _print_recommendations_table(recommendations: list) -> None:
+    rows = []
+    for idx, (song, score, explanation) in enumerate(recommendations, start=1):
+        rows.append(
+            {
+                "rank": str(idx),
+                "title": _truncate(str(song["title"]), 22),
+                "artist": _truncate(str(song["artist"]), 18),
+                "score": f"{score:.2f}",
+                "reasons": _truncate(str(explanation), 92),
+            }
+        )
+
+    columns = [
+        ("rank", "#"),
+        ("title", "Title"),
+        ("artist", "Artist"),
+        ("score", "Score"),
+        ("reasons", "Reasons"),
+    ]
+
+    widths = {}
+    for key, header in columns:
+        cell_width = max((len(row[key]) for row in rows), default=0)
+        widths[key] = max(len(header), cell_width)
+
+    def format_row(row_dict: dict) -> str:
+        return "| " + " | ".join(
+            row_dict[key].ljust(widths[key]) for key, _ in columns
+        ) + " |"
+
+    separator = "+-" + "-+-".join("-" * widths[key] for key, _ in columns) + "-+"
+    header_row = {key: header for key, header in columns}
+
+    print(separator)
+    print(format_row(header_row))
+    print(separator)
+    for row in rows:
+        print(format_row(row))
+    print(separator)
+
+
 def print_recommendations_for_profile(profile_name: str, user_prefs: dict, songs: list) -> None:
     recommendations = recommend_songs(user_prefs, songs, k=5)
 
     print(f"\n=== {profile_name} ===")
     print(f"Preferences: {user_prefs}\n")
-
-    for idx, (song, score, explanation) in enumerate(recommendations, start=1):
-        reasons = [part.strip() for part in explanation.split(",") if part.strip()]
-        print(f"{idx}. {song['title']} - {song['artist']}")
-        print(f"   Score   : {score:.2f}")
-        print("   Reasons :")
-        for reason in reasons:
-            print(f"   - {reason}")
-        print()
+    _print_recommendations_table(recommendations)
 
 
 def main() -> None:
