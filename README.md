@@ -1,5 +1,27 @@
 # 🎵 Music Recommender Simulation
 
+## System Evaluation Screenshots (Top-5 Results)
+
+### High-Energy Pop
+![High-Energy Pop Recommendations](data/screenshots/Stress_Test_1.png)
+
+### Chill Lofi
+![Chill Lofi Recommendations](data/screenshots/Stress_Test_2.png)
+
+### Deep Intense Rock
+![Deep Intense Rock Recommendations](data/screenshots/Stress_Test_3.png)
+
+### Conflicting Preferences (High Energy + Sad Mood)
+![Conflicting Preferences Recommendations](data/screenshots/Stress_Test_4.png)
+
+### Sparse Profile (Genre Only)
+![Sparse Profile Recommendations](data/screenshots/Stress_Test_5.png)
+
+### Boundary Energy Tie Case
+![Boundary Energy Tie Case Recommendations](data/screenshots/Stress_Test_6.png)
+
+---
+
 ## Project Summary
 
 In this project you will build and explain a small music recommender system.
@@ -129,6 +151,46 @@ Use this section to document the experiments you ran. For example:
 - What happened when you changed the weight on genre from 2.0 to 0.5
 - What happened when you added tempo or valence to the score
 - How did your system behave for different types of users
+
+### System Evaluation: Stress Test with Diverse Profiles
+
+I ran the recommender with six profiles: three baseline profiles and three adversarial edge-case profiles.
+
+Profiles tested:
+
+1. High-Energy Pop: `{"genre": "pop", "mood": "happy", "energy": 0.9}`
+2. Chill Lofi: `{"genre": "lofi", "mood": "calm", "energy": 0.3}`
+3. Deep Intense Rock: `{"genre": "rock", "mood": "intense", "energy": 0.88}`
+4. Conflicting Preferences (High Energy + Sad Mood): `{"genre": "pop", "mood": "sad", "energy": 0.9}`
+5. Sparse Profile (Genre Only): `{"genre": "rock"}`
+6. Boundary Energy Tie Case: `{"genre": "pop", "mood": "happy", "energy": 0.5}`
+
+Observed patterns:
+
+- Baseline profiles returned intuitive top results with strong genre and mood matches.
+- The conflicting profile still surfaced high-energy pop songs, showing energy and genre can dominate mood mismatches.
+- The sparse profile produced many tied zero-score songs after the top genre match, showing limited personalization when keys are missing.
+- The boundary energy profile showed narrower energy contributions and more ties compared to high-energy profiles.
+
+Terminal screenshot evidence:
+
+#### High-Energy Pop
+![High-Energy Pop Recommendations](data/screenshots/Stress_Test_1.png)
+
+#### Chill Lofi
+![Chill Lofi Recommendations](data/screenshots/Stress_Test_2.png)
+
+#### Deep Intense Rock
+![Deep Intense Rock Recommendations](data/screenshots/Stress_Test_3.png)
+
+#### Conflicting Preferences (High Energy + Sad Mood)
+![Conflicting Preferences Recommendations](data/screenshots/Stress_Test_4.png)
+
+#### Sparse Profile (Genre Only)
+![Sparse Profile Recommendations](data/screenshots/Stress_Test_5.png)
+
+#### Boundary Energy Tie Case
+![Boundary Energy Tie Case Recommendations](data/screenshots/Stress_Test_6.png)
 
 ---
 
