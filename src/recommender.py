@@ -65,6 +65,12 @@ def load_songs(csv_path: str) -> List[Dict]:
                     "valence": float(row["valence"]),
                     "danceability": float(row["danceability"]),
                     "acousticness": float(row["acousticness"]),
+                    "popularity": int(row["popularity"]),
+                    "release_decade": int(row["release_decade"]),
+                    "mood_tag": row["mood_tag"],
+                    "instrumentalness": float(row["instrumentalness"]),
+                    "lyrical_density": float(row["lyrical_density"]),
+                    "live_energy": float(row["live_energy"]),
                 }
             )
 
@@ -94,6 +100,45 @@ def score_song(user_prefs: Dict, song: Dict) -> Tuple[float, List[str]]:
         if energy_score > 0:
             score += energy_score
             reasons.append(f"energy similarity (+{energy_score:.2f})")
+
+    if "popularity_target" in user_prefs and "popularity" in song:
+        popularity_diff = abs(int(song["popularity"]) - int(user_prefs["popularity_target"]))
+        popularity_score = max(0.0, 1.2 - 0.02 * popularity_diff)
+        if popularity_score > 0:
+            score += popularity_score
+            reasons.append(f"popularity proximity (+{popularity_score:.2f})")
+
+    if "preferred_decade" in user_prefs and "release_decade" in song:
+        if int(song["release_decade"]) == int(user_prefs["preferred_decade"]):
+            score += 0.8
+            reasons.append("preferred decade match (+0.8)")
+
+    user_mood_tag = str(user_prefs.get("mood_tag", "")).strip().lower()
+    song_mood_tag = str(song.get("mood_tag", "")).strip().lower()
+    if user_mood_tag and song_mood_tag and user_mood_tag == song_mood_tag:
+        score += 0.9
+        reasons.append("mood tag match (+0.9)")
+
+    if "instrumentalness_target" in user_prefs and "instrumentalness" in song:
+        inst_diff = abs(float(song["instrumentalness"]) - float(user_prefs["instrumentalness_target"]))
+        inst_score = max(0.0, 1.0 - 2.5 * inst_diff)
+        if inst_score > 0:
+            score += inst_score
+            reasons.append(f"instrumentalness proximity (+{inst_score:.2f})")
+
+    if "lyrical_density_target" in user_prefs and "lyrical_density" in song:
+        lyric_diff = abs(float(song["lyrical_density"]) - float(user_prefs["lyrical_density_target"]))
+        lyric_score = max(0.0, 0.8 - 2.0 * lyric_diff)
+        if lyric_score > 0:
+            score += lyric_score
+            reasons.append(f"lyrical density proximity (+{lyric_score:.2f})")
+
+    if "live_energy_target" in user_prefs and "live_energy" in song:
+        live_diff = abs(float(song["live_energy"]) - float(user_prefs["live_energy_target"]))
+        live_score = max(0.0, 0.8 - 2.0 * live_diff)
+        if live_score > 0:
+            score += live_score
+            reasons.append(f"live energy proximity (+{live_score:.2f})")
 
     if not reasons:
         reasons.append("no direct genre/mood/energy matches")
