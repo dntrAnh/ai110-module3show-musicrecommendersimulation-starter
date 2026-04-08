@@ -1,111 +1,61 @@
 # 🎧 Model Card: Music Recommender Simulation
 
-## 1. Model Name  
+## 1. Model Name
 
-Give your model a short, descriptive name.  
-Example: **VibeFinder 1.0**  
-
----
-
-## 2. Intended Use  
-
-Describe what your recommender is designed to do and who it is for. 
-
-Prompts:  
-
-- What kind of recommendations does it generate  
-- What assumptions does it make about the user  
-- Is this for real users or classroom exploration  
+VibeFinder Classroom Prototype
 
 ---
 
-## 3. How the Model Works  
+## 2. Intended Use
 
-Explain your scoring approach in simple language.  
-
-Prompts:  
-
-- What features of each song are used (genre, energy, mood, etc.)  
-- What user preferences are considered  
-- How does the model turn those into a score  
-- What changes did you make from the starter logic  
-
-Avoid code here. Pretend you are explaining the idea to a friend who does not program.
+This model suggests top songs from a small classroom dataset based on a user profile with genre, mood, and target energy. It is intended for learning how recommendation logic works, not for production users. It assumes users can describe their taste with a few simple preferences.
 
 ---
 
-## 4. Data  
+## 3. How the Model Works
 
-Describe the dataset the model uses.  
-
-Prompts:  
-
-- How many songs are in the catalog  
-- What genres or moods are represented  
-- Did you add or remove data  
-- Are there parts of musical taste missing in the dataset  
+The model gives each song a score by checking how well song features line up with user preferences. A song can gain points from matching genre and mood, and also from being close to the user's energy target. During experimentation, I shifted weights to make energy matter more and genre matter less so I could test sensitivity. The output is the top ranked songs plus short reason strings explaining why each song was picked.
 
 ---
 
-## 5. Strengths  
+## 4. Data
 
-Where does your system seem to work well  
-
-Prompts:  
-
-- User types for which it gives reasonable results  
-- Any patterns you think your scoring captures correctly  
-- Cases where the recommendations matched your intuition  
+The catalog has 20 songs in `data/songs.csv`. The dataset includes many genres, but only a few repeated clusters (for example, 3 lofi songs and 2 pop songs while most genres appear once). Mood labels are similarly sparse, with a few repeated labels and many singletons. This means some user tastes have only one or two realistic matches in the catalog.
 
 ---
 
-## 6. Limitations and Bias 
+## 5. Strengths
 
-Where the system struggles or behaves unfairly. 
-
-Prompts:  
-
-- Features it does not consider  
-- Genres or moods that are underrepresented  
-- Cases where the system overfits to one preference  
-- Ways the scoring might unintentionally favor some users  
+The recommender works well for focused profiles like High-Energy Pop and Chill Lofi, where at least one major feature clearly matches. The explanations are easy to understand, so users can see exactly why a song ranked highly. It also reacts in a predictable way when the user profile changes, which is good for learning and debugging.
 
 ---
 
-## 7. Evaluation  
+## 6. Limitations and Bias
 
-How you checked whether the recommender behaved as expected. 
-
-Prompts:  
-
-- Which user profiles you tested  
-- What you looked for in the recommendations  
-- What surprised you  
-- Any simple tests or comparisons you ran  
-
-No need for numeric metrics unless you created some.
+One weakness is that the system can create an energy-driven filter bubble, especially after increasing energy weight. Songs with very similar energy values keep rising to the top even when mood is a poor match, so users can get repetitive results that feel “technically correct” but emotionally wrong. Because the dataset is small, many genres have only one example, so some users get low variety no matter what they ask for. The energy formula also drops to zero after a fixed gap, which can harshly remove songs that might still be good fits in real listening behavior. Finally, if a profile is missing keys (like mood or energy), recommendations can collapse into ties and lose personalization.
 
 ---
 
-## 8. Future Work  
+## 7. Evaluation
 
-Ideas for how you would improve the model next.  
+I tested six profiles: High-Energy Pop, Chill Lofi, Deep Intense Rock, Conflicting Preferences (High Energy + Sad Mood), Sparse Profile (Genre Only), and Boundary Energy Tie Case. Before the experiment, genre contributed strongly; after the weight shift experiment (genre halved, energy doubled), high-energy songs became even more dominant across multiple profiles. One surprise was that in conflicting profiles, songs like Gym Hero kept ranking near the top because energy closeness could overpower mood mismatch. I also compared results to musical intuition: for Happy Pop, Sunrise City as #1 felt right, but repeated appearances of Gym Hero for non-pop moods felt less intuitive. This showed the model became more sensitive to energy than to emotional context.
 
-Prompts:  
+Inline chat prompt used for result explanation:
 
-- Additional features or preferences  
-- Better ways to explain recommendations  
-- Improving diversity among the top results  
-- Handling more complex user tastes  
+"Using the weights in `src/recommender.py`, explain in plain language why Sunrise City ranked #1 for the High-Energy Pop profile. Break down genre points, mood points, and energy similarity points with the actual score math."
+
+Chat-view prompt used for bias analysis:
+
+"Using #file:src/recommender.py and #file:data/songs.csv, identify likely filter bubbles or user groups that may get weaker recommendations. Focus on genre sparsity, mood sparsity, and the energy-gap formula."
 
 ---
 
-## 9. Personal Reflection  
+## 8. Future Work
 
-A few sentences about your experience.  
+I would add diversity logic so the top 5 are not all near-identical in energy. I would include additional preference controls (for example, acousticness and danceability) and allow “soft” mood matching. I would also add tie-breaking rules and normalization so missing profile fields do not collapse results to many zero-score ties.
 
-Prompts:  
+---
 
-- What you learned about recommender systems  
-- Something unexpected or interesting you discovered  
-- How this changed the way you think about music recommendation apps  
+## 9. Personal Reflection
+
+This project showed me how small weight choices can strongly change user experience. I learned that a recommender can look accurate in math while still feeling repetitive to a human listener. Building and stress-testing this model made me pay more attention to bias, variety, and explanation quality in real music apps.
